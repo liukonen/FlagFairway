@@ -1,0 +1,28 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Svelte build artifacts
+/node_modules
+/public/build
+
+# Go dependencies (optional, if you're using modules)
+/go.sum
+/go.mod
+
+# IDE and editor specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# Compiled binary
+yourapp
+
+# Temporary files
+*.tmp
+
+# Logs
+*.log
