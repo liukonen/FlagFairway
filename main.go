@@ -4,15 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"github.com/gofiber/fiber/v2"
-	"github.com/dgraph-io/badger/v3"
-	"github.com/gofiber/swagger" 
-)
+	"time"
 
-type FeatureFlag struct {
-	Key   string `json:"key"`
-	Value bool   `json:"value"`
-}
+	"github.com/dgraph-io/badger/v3"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
+)
 
 var db *badger.DB
 
@@ -33,20 +30,23 @@ func main() {
 	}
 	defer db.Close()
 
+	// Run garbage collection in a separate Goroutine
+	go runGarbageCollection(db)
+
 	app := fiber.New()
 	app.Static("/", "./internal/ui/build")
 
 	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL: "/swagger2/doc.json",
-		DeepLinking: false,
+		URL:          "/swagger2/doc.json",
+		DeepLinking:  false,
 		DocExpansion: "none",
 		// Ability to change OAuth2 redirect uri location
 		OAuth2RedirectUrl: "http://localhost:8080/swagger/oauth2-redirect.html",
 	}))
-    app.Static("/swagger2/doc.json", "./docs/swagger.json")
+	app.Static("/swagger2/doc.json", "./docs/swagger.json")
 	app.Get("/api/v1/feature_flags", getFeatureFlags)
 	app.Get("/api/v1/feature_flags/:key", getFeatureFlag)
-	app.Post("/api/v1/feature_flags/:key", createOrUpdateFeatureFlag)
+	app.Post("/api/v1/feature_flags/:key", CreateFeatureFlag)
 	app.Put("/api/v1/feature_flags/:key", createOrUpdateFeatureFlag)
 	app.Delete("/api/v1/feature_flags/:key", deleteFeatureFlag)
 
@@ -54,16 +54,15 @@ func main() {
 	log.Fatal(app.Listen(":8080"))
 }
 
-
 // getFeatureFlags godoc
 // @Summary      get Feature Flags
 // @Tags feature_flags
 // @Description  get list of current feature flags
 // @Produce      json
 // @Success      200  {object}  []string
-// @Failure      400 
-// @Failure      404  
-// @Failure      500  
+// @Failure      400
+// @Failure      404
+// @Failure      500
 // @Router       /feature_flags [get]
 func getFeatureFlags(c *fiber.Ctx) error {
 	var featureFlags []string
@@ -85,26 +84,55 @@ func getFeatureFlags(c *fiber.Ctx) error {
 	return c.JSON(featureFlags)
 }
 
-// @Summary Create or update a feature flag
-// @Description Create a new feature flag if it doesn't exist or update an existing one
-// @ID create-or-update-feature-flag
-// @Tags feature_flags
-// @Param key path string true "Key of the feature flag"
-// @Param body body string true "New value of the feature flag"
-// @Success 202 {string} string "Feature flag created or updated"
-// @Failure 400 {string} string "Invalid request body"
-// @Failure 500 {string} string "Internal server error"
-// @Router /feature_flags/{key} [post]
 func createOrUpdateFeatureFlag(c *fiber.Ctx) error {
-	key  := c.Params("key") 
+	key := c.Params("key")
 
-	body := c.Body()	
+	body := c.Body()
 	fmt.Print(key, body)
 	err := addOrUpdateFlag(key, string(body))
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.SendStatus(http.StatusAccepted)
+}
+
+// @Summary Update a feature flag
+// @Description Create a new feature flag if it doesn't exist or update an existing one
+// @ID create-or-update-feature-flag
+// @Tags feature_flags
+// @Param key path string true "Key of the feature flag"
+// @Param body body string true "New value of the feature flag"
+// @Success 202 {string} string "Feature flag created or updated"
+// @Failure 409 {string} string "Invalid request body"
+// @Failure 500 {string} string "Internal server error"
+// @Router /feature_flags/{key} [put]
+func UpdateFeatureFlag(c *fiber.Ctx) error {
+	//Check if feature flag exists, if so, update, else error
+	key := c.Params("key")
+	_, err := getFlag(key)
+	if err != nil && err.Error() == "Key not found" {
+		return c.Status(http.StatusConflict).SendString("Feature flag not found")
+	}
+	return createOrUpdateFeatureFlag(c)
+}
+
+// @Summary Create a feature flag
+// @Description Create a new feature flag if it doesn't exist or update an existing one
+// @ID create-or-update-feature-flag
+// @Tags feature_flags
+// @Param key path string true "Key of the feature flag"
+// @Param body body string true "New value of the feature flag"
+// @Success 202 {string} string "Feature flag created or updated"
+// @Failure 409 {string} string "Invalid request body"
+// @Failure 500 {string} string "Internal server error"
+// @Router /feature_flags/{key} [post]
+func CreateFeatureFlag(c *fiber.Ctx) error {
+	key := c.Params("key")
+	_, err := getFlag(key)
+	if err == nil {
+		return c.Status(http.StatusConflict).SendString("Feature flag found")
+	}
+	return createOrUpdateFeatureFlag(c)
 }
 
 // @Summary Delete a feature flag by key
@@ -117,11 +145,11 @@ func createOrUpdateFeatureFlag(c *fiber.Ctx) error {
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [delete]
 func deleteFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key")//strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
+	key := c.Params("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
 	fmt.Print(key)
 	err := deleteFlag(key)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).SendString(err.Error())	
+		return c.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.SendStatus(http.StatusOK)
 }
@@ -136,13 +164,13 @@ func deleteFeatureFlag(c *fiber.Ctx) error {
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [get]
 func getFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key")//strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
-		fmt.Print(key)
-		flag, err := getFlag(key)
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).SendString(err.Error())	
-		}
-		return c.SendString(flag)
+	key := c.Params("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
+	fmt.Print(key)
+	flag, err := getFlag(key)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).SendString(err.Error())
+	}
+	return c.SendString(flag)
 }
 
 func getFlag(key string) (string, error) {
@@ -178,4 +206,17 @@ func deleteFlag(key string) error {
 	return db.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(key))
 	})
+}
+
+func runGarbageCollection(db *badger.DB) {
+	ticker := time.NewTicker(6 * time.Hour)
+	defer ticker.Stop()
+
+	for range ticker.C {
+	again:
+		err := db.RunValueLogGC(0.7)
+		if err == nil {
+			goto again
+		}
+	}
 }

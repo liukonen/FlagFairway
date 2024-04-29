@@ -109,7 +109,39 @@ paths:
           description: Internal server error
           schema:
             type: string
-      summary: Create or update a feature flag
+      summary: Create a feature flag
+      tags:
+      - feature_flags
+    put:
+      description: Create a new feature flag if it doesn't exist or update an existing
+        one
+      operationId: create-or-update-feature-flag
+      parameters:
+      - description: Key of the feature flag
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: New value of the feature flag
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      responses:
+        "202":
+          description: Feature flag created or updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Update a feature flag
       tags:
       - feature_flags
 swagger: "2.0"

@@ -89,12 +89,58 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Create a new feature flag if it doesn't exist or update an existing one",
+                "tags": [
+                    "feature_flags"
+                ],
+                "summary": "Update a feature flag",
+                "operationId": "create-or-update-feature-flag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key of the feature flag",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New value of the feature flag",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Feature flag created or updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new feature flag if it doesn't exist or update an existing one",
                 "tags": [
                     "feature_flags"
                 ],
-                "summary": "Create or update a feature flag",
+                "summary": "Create a feature flag",
                 "operationId": "create-or-update-feature-flag",
                 "parameters": [
                     {
