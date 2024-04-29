@@ -1,0 +1,115 @@
+basePath: /api/v1
+info:
+  contact:
+    name: Luke Liukonen
+    url: https://liukonen.dev
+  description: This is a sample server celler server.
+  termsOfService: http://swagger.io/terms/
+  title: Flag Fairway
+  version: "0.1"
+paths:
+  /feature_flags:
+    get:
+      description: get list of current feature flags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: get Feature Flags
+      tags:
+      - feature_flags
+  /feature_flags/{key}:
+    delete:
+      description: Delete a feature flag by its key
+      operationId: delete-feature-flag
+      parameters:
+      - description: Key of the feature flag to delete
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Feature flag deleted
+          schema:
+            type: string
+        "404":
+          description: Feature flag not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Delete a feature flag by key
+      tags:
+      - feature_flags
+    get:
+      description: Retrieve the value of a feature flag by its key
+      operationId: get-feature-flag
+      parameters:
+      - description: Key of the feature flag
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Value of the feature flag
+          schema:
+            type: string
+        "404":
+          description: Feature flag not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get a feature flag by key
+      tags:
+      - feature_flags
+    post:
+      description: Create a new feature flag if it doesn't exist or update an existing
+        one
+      operationId: create-or-update-feature-flag
+      parameters:
+      - description: Key of the feature flag
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: New value of the feature flag
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      responses:
+        "202":
+          description: Feature flag created or updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create or update a feature flag
+      tags:
+      - feature_flags
+swagger: "2.0"
