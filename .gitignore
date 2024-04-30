@@ -10,8 +10,8 @@
 /public/build
 
 # Go dependencies (optional, if you're using modules)
-/go.sum
-/go.mod
+#/go.sum
+#/go.mod
 
 # IDE and editor specific files
 .vscode/
