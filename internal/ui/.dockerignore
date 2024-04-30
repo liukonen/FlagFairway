@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+pnpm-lock.yaml
+pnpmfile.js
+yarn.lock
+.DS_Store
+*.log

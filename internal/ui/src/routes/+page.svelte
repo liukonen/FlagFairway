@@ -1,13 +1,16 @@
 <script>
   import { onMount } from "svelte"
+  import { page } from '$app/stores';
 
   let flags = []
   let newKey = ""
   let newValue = ""
 
+  const path = $page.url.origin
+
   const fetchFlags = async () => {
     const response = await fetch("/api/v1/feature_flags")
-    flags = await response.json()
+    flags = await response.json() ?? []
   }
 
   const confirmDelete = (flag) => {
@@ -82,32 +85,34 @@
   onMount(fetchFlags)
 </script>
 
-<h1>Feature Flags</h1>
-
 <button
-  class="btn btn-primary"
+  class="btn btn-primary mb-5"
   data-bs-toggle="modal"
-  data-bs-target="#createModal">Add Feature Flag</button
->
+  data-bs-target="#createModal">Add Feature Flag
+</button>
 
-<ol class="list-group list-group-numbered">
+<ul class="list-group">
   {#each flags as flag}
     <li
       class="list-group-item d-flex justify-content-between align-items-start"
     >
       <div class="ms-2 me-auto">
-        <button
-          class="btn"
+        <div clas="fw-bold">
+          <button
+          class="btn btn-outline-info"
           on:click={getFeatureData(flag)}
           data-bs-toggle="modal"
-          data-bs-target="#editModal">{flag}</button>
+          data-bs-target="#editModal">{flag}</button>  
+        </div>
+         <i> curl -X 'GET' '{path}/api/v1/feature_flags/{flag}'</i>
       </div>
 
-      <button class="btn btn-warning" on:click={() => confirmDelete(flag)}
-        >delete</button>
+      <button class="btn btn-danger" on:click={() => confirmDelete(flag)}
+        >delete
+      </button>
     </li>
   {/each}
-</ol>
+</ul>
 
 <div
   class="modal fade"
@@ -126,24 +131,24 @@
         </h1>
       </div>
       <div class="modal-body">
-		<div class="input-group mb-3">
-			<span class="input-group-text">key</span>
-			<input
-			  type="text"
-			  class="form-control"
-			  placeholder="Enter feature flag key"
-			  bind:value={newKey}
-		    />
-		</div>
+		    <div class="input-group mb-3">
+		    	<span class="input-group-text">key</span>
+		    	<input
+		    	  type="text"
+		    	  class="form-control"
+		    	  placeholder="Enter feature flag key"
+		    	  bind:value={newKey}
+		        />
+		    </div>
         <div class="input-group mb-3">
-			<span class="input-group-text">value</span>
-			<textarea 
-			  type="text"
-			  class="form-control"
-			  placeholder="Enter feature flag value"
-			  bind:value={newValue}
-		    />
-		</div>
+		    	<span class="input-group-text">value</span>
+		    	<textarea 
+		    	  type="text"
+		    	  class="form-control"
+		    	  placeholder="Enter feature flag value"
+		    	  bind:value={newValue}
+		        />
+		    </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary"b on:click={resetItems} data-bs-dismiss="modal">Close</button>

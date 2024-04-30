@@ -1,0 +1,12 @@
+data
+data2
+readme.md
+*.exe
+
+internal/ui/node_modules
+internal/ui/npm-debug.log
+internal/ui/pnpm-lock.yaml
+internal/ui/pnpmfile.js
+internal/ui/yarn.lock
+internal/ui/.DS_Store
+internal/ui/*.log
