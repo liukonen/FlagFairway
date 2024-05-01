@@ -19,6 +19,21 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/health": {
+            "get": {
+                "description": "Returns the health status of the application",
+                "summary": "Get the health status of the application",
+                "operationId": "get-health",
+                "responses": {
+                    "200": {
+                        "description": "Healthy",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/feature_flags": {
             "get": {
                 "description": "get list of current feature flags",
@@ -121,7 +136,7 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "400": {
+                    "409": {
                         "description": "Invalid request body",
                         "schema": {
                             "type": "string"
@@ -167,7 +182,7 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "400": {
+                    "409": {
                         "description": "Invalid request body",
                         "schema": {
                             "type": "string"

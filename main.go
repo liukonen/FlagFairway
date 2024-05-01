@@ -9,10 +9,13 @@ import (
 	"github.com/dgraph-io/badger/v3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	"github.com/robfig/cron/v3"
 )
 
-var db *badger.DB
-
+var (
+	db *badger.DB
+	cronRunner *cron.Cron
+)
 // @title           Flag Fairway
 // @version         0.1
 // @description     This is a sample server celler server.
@@ -30,8 +33,18 @@ func main() {
 	}
 	defer db.Close()
 
+
 	// Run garbage collection in a separate Goroutine
-	go runGarbageCollection(db)
+	location, _ := time.LoadLocation("America/Chicago")
+	cronRunner := cron.New(cron.WithLocation(location))
+
+	cronRunner.AddJob("0 0,6,12,18 * * *", cron.FuncJob(func() {
+		err := db.RunValueLogGC(0.7)
+		if err != nil {
+			log.Printf("Error running garbage collection: %v", err)
+		}
+	}))
+	cronRunner.Start()
 
 	app := fiber.New()
 	app.Static("/", "./internal/ui/build")
@@ -49,7 +62,7 @@ func main() {
 	app.Post("/api/v1/feature_flags/:key", CreateFeatureFlag)
 	app.Put("/api/v1/feature_flags/:key", createOrUpdateFeatureFlag)
 	app.Delete("/api/v1/feature_flags/:key", deleteFeatureFlag)
-
+	app.Get("/api/v1/health", getHealth)
 	log.Println("Server started on port 8080")
 	log.Fatal(app.Listen(":8080"))
 }
@@ -173,6 +186,14 @@ func getFeatureFlag(c *fiber.Ctx) error {
 	return c.SendString(flag)
 }
 
+// @Summary Get the health status of the application
+// @Description Returns the health status of the application
+// @ID get-health
+// @Success 200 {string} string "Healthy"
+// @Router /api/v1/health [get]
+func getHealth(c *fiber.Ctx)error {
+	return c.Status(http.StatusOK).SendString("Healthy")
+}
 func getFlag(key string) (string, error) {
 	var flagValue string
 
@@ -206,17 +227,4 @@ func deleteFlag(key string) error {
 	return db.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(key))
 	})
-}
-
-func runGarbageCollection(db *badger.DB) {
-	ticker := time.NewTicker(6 * time.Hour)
-	defer ticker.Stop()
-
-	for range ticker.C {
-	again:
-		err := db.RunValueLogGC(0.7)
-		if err == nil {
-			goto again
-		}
-	}
 }
