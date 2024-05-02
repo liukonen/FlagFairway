@@ -5,11 +5,12 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	"io"
 	"github.com/dgraph-io/badger/v3"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
+	// "github.com/gofiber/fiber/v2"
+	// "github.com/gofiber/swagger"
 	"github.com/robfig/cron/v3"
+	"github.com/labstack/echo/v4"
 )
 
 var (
@@ -36,7 +37,7 @@ func main() {
 
 	// Run garbage collection in a separate Goroutine
 	location, _ := time.LoadLocation("America/Chicago")
-	cronRunner := cron.New(cron.WithLocation(location))
+	cronRunner = cron.New(cron.WithLocation(location))
 
 	cronRunner.AddJob("0 0,6,12,18 * * *", cron.FuncJob(func() {
 		err := db.RunValueLogGC(0.7)
@@ -46,25 +47,25 @@ func main() {
 	}))
 	cronRunner.Start()
 
-	app := fiber.New()
+	app := echo.New()//fiber.New()
 	app.Static("/", "./internal/ui/build")
 
-	app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
-		URL:          "/swagger2/doc.json",
-		DeepLinking:  false,
-		DocExpansion: "none",
-		// Ability to change OAuth2 redirect uri location
-		OAuth2RedirectUrl: "http://localhost:8080/swagger/oauth2-redirect.html",
-	}))
-	app.Static("/swagger2/doc.json", "./docs/swagger.json")
-	app.Get("/api/v1/feature_flags", getFeatureFlags)
-	app.Get("/api/v1/feature_flags/:key", getFeatureFlag)
-	app.Post("/api/v1/feature_flags/:key", CreateFeatureFlag)
-	app.Put("/api/v1/feature_flags/:key", createOrUpdateFeatureFlag)
-	app.Delete("/api/v1/feature_flags/:key", deleteFeatureFlag)
-	app.Get("/api/v1/health", getHealth)
+	// app.Get("/swagger/*", swagger.New(swagger.Config{ // custom
+	// 	URL:          "/swagger2/doc.json",
+	// 	DeepLinking:  false,
+	// 	DocExpansion: "none",
+	// 	// Ability to change OAuth2 redirect uri location
+	// 	OAuth2RedirectUrl: "http://localhost:8080/swagger/oauth2-redirect.html",
+	// }))
+	// app.Static("/swagger2/doc.json", "./docs/swagger.json")
+	app.GET("/api/v1/feature_flags", getFeatureFlags)
+	app.GET("/api/v1/feature_flags/:key", getFeatureFlag)
+	app.POST("/api/v1/feature_flags/:key", CreateFeatureFlag)
+	app.PUT("/api/v1/feature_flags/:key", createOrUpdateFeatureFlag)
+	app.DELETE("/api/v1/feature_flags/:key", deleteFeatureFlag)
+	app.GET("/api/v1/health", getHealth)
 	log.Println("Server started on port 8080")
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Start(":8080"))
 }
 
 // getFeatureFlags godoc
@@ -77,7 +78,7 @@ func main() {
 // @Failure      404
 // @Failure      500
 // @Router       /feature_flags [get]
-func getFeatureFlags(c *fiber.Ctx) error {
+func getFeatureFlags(c echo.Context) error {
 	var featureFlags []string
 	err := db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -92,21 +93,20 @@ func getFeatureFlags(c *fiber.Ctx) error {
 		return nil
 	})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).SendString(err.Error())
+		return c.String(http.StatusInternalServerError, err.Error()) //c.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
-	return c.JSON(featureFlags)
+	return c.JSON(http.StatusOK, featureFlags)
 }
 
-func createOrUpdateFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key")
-
-	body := c.Body()
+func createOrUpdateFeatureFlag(c echo.Context) error {
+	key := c.Param("key")
+	body, _ := RequestBody(c)
 	fmt.Print(key, body)
 	err := addOrUpdateFlag(key, string(body))
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).SendString(err.Error())
+		return c.String(http.StatusInternalServerError,err.Error())
 	}
-	return c.SendStatus(http.StatusAccepted)
+	return c.String(http.StatusAccepted, "")
 }
 
 // @Summary Update a feature flag
@@ -119,12 +119,12 @@ func createOrUpdateFeatureFlag(c *fiber.Ctx) error {
 // @Failure 409 {string} string "Invalid request body"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [put]
-func UpdateFeatureFlag(c *fiber.Ctx) error {
+func UpdateFeatureFlag(c echo.Context) error {
 	//Check if feature flag exists, if so, update, else error
-	key := c.Params("key")
+	key := c.Param("key")
 	_, err := getFlag(key)
 	if err != nil && err.Error() == "Key not found" {
-		return c.Status(http.StatusConflict).SendString("Feature flag not found")
+		return c.String(http.StatusConflict,"Feature flag not found")
 	}
 	return createOrUpdateFeatureFlag(c)
 }
@@ -139,11 +139,11 @@ func UpdateFeatureFlag(c *fiber.Ctx) error {
 // @Failure 409 {string} string "Invalid request body"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [post]
-func CreateFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key")
+func CreateFeatureFlag(c echo.Context) error {
+	key := c.Param("key")
 	_, err := getFlag(key)
 	if err == nil {
-		return c.Status(http.StatusConflict).SendString("Feature flag found")
+		return c.String(http.StatusConflict,"Feature flag found")
 	}
 	return createOrUpdateFeatureFlag(c)
 }
@@ -157,14 +157,14 @@ func CreateFeatureFlag(c *fiber.Ctx) error {
 // @Failure 404 {string} string "Feature flag not found"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [delete]
-func deleteFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
+func deleteFeatureFlag(c echo.Context) error {
+	key := c.Param("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
 	fmt.Print(key)
 	err := deleteFlag(key)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).SendString(err.Error())
+		return c.String(http.StatusInternalServerError,err.Error())
 	}
-	return c.SendStatus(http.StatusOK)
+	return c.String(http.StatusOK,"")
 }
 
 // @Summary Get a feature flag by key
@@ -176,14 +176,14 @@ func deleteFeatureFlag(c *fiber.Ctx) error {
 // @Failure 404 {string} string "Feature flag not found"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [get]
-func getFeatureFlag(c *fiber.Ctx) error {
-	key := c.Params("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
+func getFeatureFlag(c echo.Context) error {
+	key := c.Param("key") //strings.TrimPrefix(r.URL.Path, "/api/v1/feature_flags/")
 	fmt.Print(key)
 	flag, err := getFlag(key)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).SendString(err.Error())
+		return c.String(http.StatusInternalServerError,err.Error())
 	}
-	return c.SendString(flag)
+	return c.String(http.StatusOK,flag)
 }
 
 // @Summary Get the health status of the application
@@ -191,9 +191,10 @@ func getFeatureFlag(c *fiber.Ctx) error {
 // @ID get-health
 // @Success 200 {string} string "Healthy"
 // @Router /api/v1/health [get]
-func getHealth(c *fiber.Ctx)error {
-	return c.Status(http.StatusOK).SendString("Healthy")
+func getHealth(c echo.Context)error {
+	return c.String(http.StatusOK, "Healthy")
 }
+
 func getFlag(key string) (string, error) {
 	var flagValue string
 
@@ -227,4 +228,14 @@ func deleteFlag(key string) error {
 	return db.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(key))
 	})
+}
+
+func RequestBody(c echo.Context) (string, error){
+	bodyBytes, err := io.ReadAll(c.Request().Body)
+        if err != nil {
+            return "", err
+        }
+        // Convert the body bytes to string
+        return string(bodyBytes), nil
+
 }
