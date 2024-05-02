@@ -3,8 +3,6 @@ services:
   feature-fairway:
     build:
       context: .
-      args:
-        DOCKER_BUILDKIT: 1
       dockerfile: dockerfile
       labels:
       - "com.centurylinklabs.watchtower.enable=false"
