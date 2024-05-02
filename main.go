@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 	"io"
-	"github.com/dgraph-io/badger/v3"
+	"github.com/dgraph-io/badger/v4"
 	// "github.com/gofiber/fiber/v2"
 	// "github.com/gofiber/swagger"
 	"github.com/robfig/cron/v3"

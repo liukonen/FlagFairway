@@ -2,10 +2,7 @@ module github.com/liukonen/FlagFairway/m/v2
 
 go 1.22.2
 
-require (
-	github.com/dgraph-io/badger/v4 v4.2.0
-	github.com/dgraph-io/badger/v4 v4.2.0
-)
+require github.com/dgraph-io/badger/v4 v4.2.0
 
 require (
 	github.com/labstack/gommon v0.4.2 // indirect
@@ -16,7 +13,6 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
