@@ -9,6 +9,8 @@ services:
     command: /app/app
     restart: unless-stopped
     volumes:
-    - './data:/app/data'
+    - 'flag-data:/app/data'
     ports:
       - 8411:8080
+volumes:
+  flag-data:
