@@ -3,6 +3,13 @@ data2
 readme.md
 *.exe
 
+.git
+node_modules
+dist
+*.log
+*.env
+.DS_Store
+
 internal/ui/node_modules
 internal/ui/npm-debug.log
 internal/ui/pnpm-lock.yaml
