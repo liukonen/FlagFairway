@@ -2,7 +2,7 @@ module github.com/liukonen/FlagFairway/m/v2
 
 go 1.22.12
 
-toolchain go1.24.0
+toolchain go1.24.1
 
 require github.com/dgraph-io/badger/v4 v4.6.0
 
