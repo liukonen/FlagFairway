@@ -1,11 +1,6 @@
-version: '3.3'
 services:
   feature-fairway:
-    build:
-      context: .
-      dockerfile: dockerfile
-      labels:
-      - "com.centurylinklabs.watchtower.enable=false"
+    image: ghcr.io/liukonen/flagfairway:main
     command: /app/app
     restart: unless-stopped
     volumes:
