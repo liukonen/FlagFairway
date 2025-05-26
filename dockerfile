@@ -7,7 +7,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o app
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o app
 
 
 FROM node:lts-alpine as uibuilder
@@ -31,4 +31,5 @@ COPY --from=serverbuilder /app/app ./
 VOLUME [ "/data" ]
 
 EXPOSE 8080
-CMD ["./app"]
+USER 1000:1000
+ENTRYPOINT ["/app/app"]
