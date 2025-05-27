@@ -31,6 +31,5 @@ COPY --from=serverbuilder /app/app ./
 VOLUME [ "/data" ]
 
 EXPOSE 8080
-RUN mkdir -p /data && chown -R 1000:1000 /data
 USER 1000:1000
 ENTRYPOINT ["/app/app"]

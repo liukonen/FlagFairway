@@ -1,4 +1,13 @@
 services:
+
+  init-perms:
+    image: alpine
+    command: ["sh", "-c", "chown -R 1000:1000 /data"]
+    volumes:
+      - app-data:/data
+    user: root
+    restart: "no"
+  
   feature-fairway:
     image: ghcr.io/liukonen/flagfairway:main
     command: /app/app
