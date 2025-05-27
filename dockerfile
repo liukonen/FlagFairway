@@ -1,7 +1,7 @@
 # Use buildkit
 # syntax=docker/dockerfile:experimental
 
-FROM golang:bookworm AS serverbuilder
+FROM golang:1.24.3-bookworm AS serverbuilder
 ENV GOPROXY=${GOPROXY}
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -10,7 +10,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o app
 
 
-FROM node:lts-alpine as uibuilder
+FROM node:22.16.0-alpine3.21 as uibuilder
 WORKDIR /app
 COPY ./internal/ui/package*.json ./
 RUN npm ci
@@ -20,7 +20,7 @@ RUN rm -rf /app/node_modules /app/.npm
 
 
 # Final stage
-FROM gcr.io/distroless/static-debian12
+FROM gcr.io/distroless/static-debian12@sha256:2b0f5abab12e4d6a533b91a4796d10504a05d8c41a61d4969889efb66daafece
 WORKDIR /app
 # Copy ui
 COPY --from=uibuilder /app/build ./internal/ui/build
