@@ -1,7 +1,7 @@
 # Use buildkit
 # syntax=docker/dockerfile:experimental
 
-FROM golang:1.24.3-bookworm AS serverbuilder
+FROM golang:1.24.4-bookworm AS serverbuilder
 ENV GOPROXY=${GOPROXY}
 WORKDIR /app
 COPY go.mod go.sum ./
