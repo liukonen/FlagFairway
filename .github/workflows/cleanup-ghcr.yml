@@ -1,0 +1,53 @@
+name: Clean Up Old GHCR Images
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM UTC
+  workflow_dispatch:     # Manual trigger from GitHub UI
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Clean up old container images
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const SEVEN_DAYS_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+            const packageName = repo;
+
+            const versions = await github.paginate(
+              github.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
+              {
+                package_type: 'container',
+                package_name: packageName,
+                username: owner,
+                per_page: 100,
+              }
+            );
+
+            for (const version of versions) {
+              const createdAt = new Date(version.created_at);
+              const tags = version.metadata.container.tags || [];
+
+              const isMainRelated = tags.some(tag => tag.toLowerCase().includes("main"));
+              const isRecent = createdAt > SEVEN_DAYS_AGO;
+
+              if (!isMainRelated && !isRecent) {
+                console.log(`Deleting version ${version.id} (${tags.join(", ")}) from ${createdAt}`);
+                await github.rest.packages.deletePackageVersionForUser({
+                  package_type: 'container',
+                  package_name: packageName,
+                  username: owner,
+                  package_version_id: version.id,
+                });
+              } else {
+                console.log(`Keeping version ${version.id} (${tags.join(", ")}) from ${createdAt}`);
+              }
+            }
