@@ -1,38 +1,73 @@
-# create-svelte
+# FlagFairway UI
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+This is the Preact-based frontend for FlagFairway, built with TypeScript, Sass, and bundled using esbuild.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- ⚡️ Fast, modern UI with [Preact](https://preactjs.com/)
+- ✨ TypeScript for type safety
+- 🎨 Styles with Sass (`.sass`)
+- ⚙️ Bundled with [esbuild](https://esbuild.github.io/)
+- 📦 Static assets copied automatically to the build output
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Project Structure
 
-# create a new project in my-app
-npm create svelte@latest my-app
+```
+internal/ui/
+  build/           # Compiled output (bundle.js, bundle.css, index.html, etc.)
+  src/
+    index.tsx      # Entry point, renders the app
+    page.tsx       # Main page component
+    style.sass     # Sass styles
+  static/          # Static assets (favicon, index.html, etc.)
+  build.js         # Build script (esbuild + sass + static copy)
+  package.json
+  tsconfig.json
 ```
 
-## Developing
+## Getting Started
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### 1. Install dependencies
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```sh
+npm install
 ```
 
-## Building
+### 2. Build the project
 
-To create a production version of your app:
-
-```bash
+```sh
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+- This will:
+  - Bundle your TypeScript/Preact code
+  - Compile Sass to CSS
+  - Copy static assets from `static/` to `build/`
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+### 3. Preview
+
+Open `build/index.html` in your browser.
+
+## Development Notes
+
+- **Entry point:** [`src/index.tsx`](src/index.tsx)
+- **Main component:** [`src/page.tsx`](src/page.tsx)
+- **Styles:** [`src/style.sass`](src/style.sass)
+- **Static assets:** Place any files you want copied to the output in [`static/`](static/)
+- **Build output:** All built files are in [`build/`](build/)
+
+## Customization
+
+- To add more pages or components, create new `.tsx` files in `src/` and import them as needed.
+- To change the theme or styles, edit `src/style.sass`.
+
+## Troubleshooting
+
+- If you see errors about missing font loaders (e.g. `.woff`), add the appropriate loader to your `esbuild` config in `build.js`.
+- If you add new static files, re-run the build to copy them to `build/`.
+
+## License
+
+MIT
+
+---
