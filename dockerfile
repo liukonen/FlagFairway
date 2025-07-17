@@ -2,7 +2,6 @@
 # syntax=docker/dockerfile:experimental
 
 FROM golang:1.24.5-bookworm AS serverbuilder
-ENV GOPROXY=${GOPROXY}
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
