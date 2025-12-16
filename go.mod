@@ -4,7 +4,7 @@ go 1.24.0
 
 toolchain go1.25.5
 
-require github.com/dgraph-io/badger/v4 v4.8.0
+require github.com/dgraph-io/badger/v4 v4.9.0
 
 require (
 	github.com/dgraph-io/ristretto/v2 v2.2.0 // indirect
@@ -19,7 +19,7 @@ require (
 	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
+	google.golang.org/protobuf v1.36.7 // indirect
 )
 
 require (
