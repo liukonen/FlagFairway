@@ -8,7 +8,7 @@ import (
 	"io"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/robfig/cron/v3"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 var (
@@ -61,7 +61,7 @@ func main() {
 // @Failure      404
 // @Failure      500
 // @Router       /feature_flags [get]
-func getFeatureFlags(c echo.Context) error {
+func getFeatureFlags(c *echo.Context) error {
 	var featureFlags []string
 	err := db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -81,7 +81,7 @@ func getFeatureFlags(c echo.Context) error {
 	return c.JSON(http.StatusOK, featureFlags)
 }
 
-func createOrUpdateFeatureFlag(c echo.Context) error {
+func createOrUpdateFeatureFlag(c *echo.Context) error {
 	key := c.Param("key")
 	body, _ := RequestBody(c)
 	fmt.Print(key, body)
@@ -101,7 +101,7 @@ func createOrUpdateFeatureFlag(c echo.Context) error {
 // @Failure 409 {string} string "Invalid request body"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [put]
-func UpdateFeatureFlag(c echo.Context) error {
+func UpdateFeatureFlag(c *echo.Context) error {
 	key := c.Param("key")
 	_, err := getFlag(key)
 	if err != nil && err.Error() == "Key not found" {
@@ -119,7 +119,7 @@ func UpdateFeatureFlag(c echo.Context) error {
 // @Failure 409 {string} string "Invalid request body"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [post]
-func CreateFeatureFlag(c echo.Context) error {
+func CreateFeatureFlag(c *echo.Context) error {
 	key := c.Param("key")
 	_, err := getFlag(key)
 	if err == nil {
@@ -137,7 +137,7 @@ func CreateFeatureFlag(c echo.Context) error {
 // @Failure 404 {string} string "Feature flag not found"
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [delete]
-func deleteFeatureFlag(c echo.Context) error {
+func deleteFeatureFlag(c *echo.Context) error {
 	key := c.Param("key") 
 	fmt.Print(key)
 	err := deleteFlag(key)
@@ -148,7 +148,7 @@ func deleteFeatureFlag(c echo.Context) error {
 }
 
 
-func getFeatureFlag(c echo.Context) error {
+func getFeatureFlag(c *echo.Context) error {
 	key := c.Param("key") 
 	fmt.Print(key)
 	flag, err := getFlag(key)
@@ -163,7 +163,7 @@ func getFeatureFlag(c echo.Context) error {
 // @ID get-health
 // @Success 200 {string} string "Healthy"
 // @Router /api/v1/health [get]
-func getHealth(c echo.Context)error {
+func getHealth(c *echo.Context)error {
 	return c.String(http.StatusOK, "Healthy")
 }
 
@@ -201,7 +201,7 @@ func deleteFlag(key string) error {
 	})
 }
 
-func RequestBody(c echo.Context) (string, error){
+func RequestBody(c *echo.Context) (string, error){
 	bodyBytes, err := io.ReadAll(c.Request().Body)
         if err != nil {
             return "", err
