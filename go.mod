@@ -6,7 +6,7 @@ toolchain go1.25.6
 
 require (
 	github.com/dgraph-io/badger/v4 v4.9.0
-	github.com/labstack/echo/v5 v5.0.0
+	github.com/labstack/echo/v5 v5.0.1
 )
 
 require (
