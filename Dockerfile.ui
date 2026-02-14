@@ -5,3 +5,6 @@ RUN  --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --prefer-offli
 COPY ./internal/ui .
 RUN npm run build
 RUN rm -rf /app/node_modules /app/.npm
+
+FROM scratch
+COPY --from=uibuilder /app/build /build
