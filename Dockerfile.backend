@@ -13,3 +13,28 @@ RUN CGO_ENABLED=0 \
     GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
     go build -ldflags="-s -w" -o /out/app
+
+
+
+
+    # syntax=docker/dockerfile:1.7
+
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine
+WORKDIR /app
+
+ARG TARGETOS
+ARG TARGETARCH
+
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+COPY backend/ .
+
+RUN CGO_ENABLED=0 \
+    GOOS=$TARGETOS \
+    GOARCH=$TARGETARCH \
+    go build -ldflags="-s -w" -o /out/app
+
+FROM scratch
+COPY --from=0 /out/app /app
