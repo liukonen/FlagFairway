@@ -1,0 +1,12 @@
+FROM gcr.io/distroless/static-debian13
+WORKDIR /app
+
+ARG TARGETARCH
+
+COPY backend-bin/linux_${TARGETARCH}/app /app/app
+COPY ui-build/build /app/internal/ui/build
+
+VOLUME ["/data"]
+EXPOSE 8080
+USER 1000:1000
+ENTRYPOINT ["/app/app"]

@@ -1,0 +1,7 @@
+FROM node:lts-alpine@sha256:931d7d57f8c1fd0e2179dbff7cc7da4c9dd100998bc2b32afc85142d8efbc213 AS uibuilder
+WORKDIR /app
+COPY ./internal/ui/package*.json ./
+RUN  --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --prefer-offline
+COPY ./internal/ui .
+RUN npm run build
+RUN rm -rf /app/node_modules /app/.npm
