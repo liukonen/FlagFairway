@@ -9,7 +9,7 @@ services:
     restart: "no"
   
   feature-fairway:
-    image: ghcr.io/liukonen/flagfairway:main
+    image: ghcr.io/liukonen/flagfairway:latest
     command: /app/app
     restart: unless-stopped
     volumes:
