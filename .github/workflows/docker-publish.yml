@@ -59,7 +59,7 @@ jobs:
       # Build final multi-arch image
       #################################
       - name: Build and push deploy image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile.deploy
