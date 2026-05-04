@@ -1,132 +1,59 @@
-
 # FlagFairway
+Tags: `Go` `BadgerDB` `Preact` `Feature Flags` `REST API` `Sass`
 
-FlagFairway is a lightweight, self-hosted feature flag service.  
-It provides a simple REST API for managing feature flags, a modern Preact-based web UI, and persistent storage using BadgerDB.
+A lightweight, self-hosted feature flag service with a modern web UI and persistent storage.
 
----
+## Context & Story
+FlagFairway was built to provide a simple, efficient solution for managing feature flags in backend applications. It is designed for small to medium-sized projects, prioritizing ease of use and minimal dependencies. While it lacks advanced scalability and security features, it serves as a robust starting point for teams needing server-side feature flagging.
 
+## Architecture & Decisions
+- **Go Backend**: Chosen for its performance and simplicity in building REST APIs.
+- **BadgerDB**: Embedded key-value storage for fast, persistent data handling.
+- **Preact Frontend**: Lightweight alternative to React for a modern UI.
+- **Sass**: Used for styling to maintain modular and maintainable CSS.
+- **Echo Framework**: Selected for its simplicity and middleware support.
+- **Cron Jobs**: Automated database garbage collection for optimal performance.
 
-## what this is intended for
+## Key Features
+- **Feature Flag API**: REST endpoints to create, update, delete, and list feature flags.
+- **Persistent Storage**: Utilizes BadgerDB for efficient data storage.
+- **Automatic Maintenance**: Scheduled garbage collection to optimize database performance.
+- **Modern Web UI**: Built with Preact, TypeScript, and Sass for intuitive flag management.
+- **Lightweight Design**: Minimal dependencies and efficient resource usage.
 
-- having feature flags (server side) for backend applications
+## Quick Start
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/liukonen/FlagFairway.git
+   cd FlagFairway
+   ```
 
-## What this is lacking at the momment
+2. **Run the Backend**:
+   Ensure you have Go installed.
+   ```bash
+   go run main.go
+   ```
 
-- Security (please keep this behind thne firewall or add authentication)
-- scaleablity (this is designed for small to medium size projects at the moment)
+3. **Build the Frontend**:
+   Navigate to the `internal/ui` directory and install dependencies:
+   ```bash
+   cd internal/ui
+   npm install
+   npm run build
+   ```
 
-## Features
+4. **Access the Application**:
+   Open your browser and navigate to `http://localhost:8080`.
 
-- 🚩 **Feature Flag API**: Create, update, delete, and list feature flags via REST endpoints.
-- 💾 **Persistent Storage**: Uses [BadgerDB](https://github.com/dgraph-io/badger) for fast, embedded key-value storage.
-- 🕒 **Automatic DB Maintenance**: Scheduled garbage collection for optimal performance.
-- 🌐 **Modern Web UI**: Preact + TypeScript + Sass frontend for easy flag management.
-- ⚡ **Fast & Lightweight**: Minimal dependencies, quick startup, and efficient resource usage.
-
----
-
-## Project Structure
-
-```
-FlagFairway/
-│
-├── main.go                # Go backend (API server)
-├── internal/
-│   └── ui/
-│       ├── src/           # Frontend source (Preact, TSX, Sass)
-│       ├── static/        # Static assets (favicon, index.html, etc.)
-│       ├── build/         # Compiled frontend output
-│       ├── build.js       # esbuild build script
-│       ├── package.json   # Frontend dependencies/scripts
-│       ├── tsconfig.json  # TypeScript config
-│       └── README.md      # UI-specific documentation
-├── data/                  # BadgerDB data directory (created at runtime)
-└── README.md              # (this file)
-```
-
----
-
-## Getting Started
-
-### 1. Backend (Go API)
-
-#### Prerequisites
-
-- Go 1.18+
-- [BadgerDB](https://github.com/dgraph-io/badger) (installed via Go modules)
-
-#### Run the server
-
-```sh
-go run main.go
-```
-
-- The server listens on `http://localhost:8080`
-- The web UI is served from `/` (after building the frontend)
-- API endpoints are under `/api/v1/feature_flags`
-
-#### API Endpoints
-
-| Method | Endpoint                                 | Description                      |
-|--------|------------------------------------------|----------------------------------|
-| GET    | `/api/v1/feature_flags`                  | List all feature flag keys       |
-| GET    | `/api/v1/feature_flags/:key`             | Get value for a feature flag     |
-| POST   | `/api/v1/feature_flags/:key`             | Create a new feature flag        |
-| PUT    | `/api/v1/feature_flags/:key`             | Update an existing feature flag  |
-| DELETE | `/api/v1/feature_flags/:key`             | Delete a feature flag            |
-| GET    | `/api/v1/health`                         | Health check                     |
+5. **API Endpoints**:
+   - `GET /api/v1/feature_flags`: List all feature flags.
+   - `POST /api/v1/feature_flags/:key`: Create a new feature flag.
+   - `PUT /api/v1/feature_flags/:key`: Update an existing feature flag.
+   - `DELETE /api/v1/feature_flags/:key`: Delete a feature flag.
+   - `GET /api/v1/health`: Check service health.
 
 ---
 
-### 2. Frontend (UI)
-
-See [`internal/ui/README.md`](internal/ui/README.md) for full details.
-
-#### Quick Start
-
-```sh
-cd internal/ui
-npm install
-npm run build
-```
-
-- The build output will be in `internal/ui/build/`
-- The Go server will serve this UI automatically
-
-#### Development
-
-- Edit UI code in `internal/ui/src/`
-- Styles are in `internal/ui/src/style.sass`
-- Run `npm run build` after changes
-
----
-
-## Deployment
-
-1. Build the frontend (`npm run build` in `internal/ui`)
-2. Run the Go server (`go run main.go`)
-3. Visit [http://localhost:8080](http://localhost:8080) in your browser
-
----
-
-## Customization
-
-- **UI**: Modify or extend the Preact components in `internal/ui/src/`
-- **API**: Extend Go handlers in `main.go`
-- **Storage**: BadgerDB data is stored in the `data/` directory by default
-
----
-
-## License
-
-MIT
-
----
-
-## Credits
-
-- [Preact](https://preactjs.com/)
-- [BadgerDB](https://github.com/dgraph-io/badger)
-- [Echo Web Framework](https://echo.labstack.com/)
-- [esbuild](https://esbuild.github.io/)
+### Notes
+- **Security**: Keep the service behind a firewall or add authentication.
+- **Scalability**: Designed for small to medium projects; not optimized for high-scale environments.
