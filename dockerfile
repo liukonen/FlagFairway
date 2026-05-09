@@ -1,7 +1,7 @@
 # Use buildkit
 # syntax=docker/dockerfile:experimental
 
-FROM golang:latest@sha256:257c1f60c465aa5d22b4d81f9ae73643a12f228a10165c658ec77bd6ff791f34 AS serverbuilder
+FROM golang:latest@sha256:2981696eed011d747340d7252620932677929cce7d2d539602f56a8d7e9b660b AS serverbuilder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
