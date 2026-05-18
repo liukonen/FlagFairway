@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
-	"io"
+
 	"github.com/dgraph-io/badger/v4"
-	"github.com/robfig/cron/v3"
 	"github.com/labstack/echo/v5"
+	"github.com/robfig/cron/v3"
 )
 
 var (
-	db *badger.DB
+	db         *badger.DB
 	cronRunner *cron.Cron
 )
 
@@ -28,7 +29,6 @@ func main() {
 	}
 	defer db.Close()
 
-
 	// Run garbage collection in a separate Goroutine
 	location, _ := time.LoadLocation("America/Chicago")
 	cronRunner = cron.New(cron.WithLocation(location))
@@ -41,7 +41,7 @@ func main() {
 	}))
 	cronRunner.Start()
 
-	app := echo.New()//fiber.New()
+	app := echo.New() //fiber.New()
 	app.Static("/", "./internal/ui/build")
 
 	app.GET("/api/v1/feature_flags", getFeatureFlags)
@@ -89,7 +89,7 @@ func createOrUpdateFeatureFlag(c *echo.Context) error {
 	fmt.Print(key, body)
 	err := addOrUpdateFlag(key, string(body))
 	if err != nil {
-		return c.String(http.StatusBadRequest,err.Error())
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusAccepted, "")
 }
@@ -107,7 +107,7 @@ func UpdateFeatureFlag(c *echo.Context) error {
 	key := c.Param("key")
 	_, err := getFlag(key)
 	if err != nil && err.Error() == "Key not found" {
-		return c.String(http.StatusConflict,"Feature flag not found")
+		return c.String(http.StatusConflict, "Feature flag not found")
 	}
 	return createOrUpdateFeatureFlag(c)
 }
@@ -125,7 +125,7 @@ func CreateFeatureFlag(c *echo.Context) error {
 	key := c.Param("key")
 	_, err := getFlag(key)
 	if err == nil {
-		return c.String(http.StatusConflict,"Feature flag found")
+		return c.String(http.StatusConflict, "Feature flag found")
 	}
 	return createOrUpdateFeatureFlag(c)
 }
@@ -140,32 +140,30 @@ func CreateFeatureFlag(c *echo.Context) error {
 // @Failure 500 {string} string "Internal server error"
 // @Router /feature_flags/{key} [delete]
 func deleteFeatureFlag(c *echo.Context) error {
-	key := c.Param("key") 
+	key := c.Param("key")
 	fmt.Print(key)
 	err := deleteFlag(key)
 	if err != nil {
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	return c.String(http.StatusOK,"")
+	return c.String(http.StatusOK, "")
 }
 
-
 func getFeatureFlag(c *echo.Context) error {
-	key := c.Param("key") 
+	key := c.Param("key")
 	fmt.Print(key)
 	flag, err := getFlag(key)
 	if err != nil {
-		return c.String(http.StatusNotFound,err.Error())
+		return c.String(http.StatusNotFound, err.Error())
 	}
-	return c.String(http.StatusOK,flag)
+	return c.String(http.StatusOK, flag)
 }
-
 
 // @Description Returns the health status of the application
 // @ID get-health
 // @Success 200 {string} string "Healthy"
 // @Router /api/v1/health [get]
-func getHealth(c *echo.Context)error {
+func getHealth(c *echo.Context) error {
 	return c.String(http.StatusOK, "Healthy")
 }
 
@@ -203,10 +201,10 @@ func deleteFlag(key string) error {
 	})
 }
 
-func RequestBody(c *echo.Context) (string, error){
+func RequestBody(c *echo.Context) (string, error) {
 	bodyBytes, err := io.ReadAll(c.Request().Body)
-        if err != nil {
-            return "", err
-        }
-        return string(bodyBytes), nil
+	if err != nil {
+		return "", err
+	}
+	return string(bodyBytes), nil
 }
