@@ -1,7 +1,7 @@
 const esbuild = require('esbuild')
 const { sassPlugin } = require('esbuild-sass-plugin')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 const copyStaticPlugin = {
   name: 'copy-static',

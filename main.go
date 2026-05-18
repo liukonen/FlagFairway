@@ -16,6 +16,8 @@ var (
 	cronRunner *cron.Cron
 )
 
+const featureFlagRoute = "/api/v1/feature_flags/:key"
+
 func main() {
 
 	var err error
@@ -43,10 +45,10 @@ func main() {
 	app.Static("/", "./internal/ui/build")
 
 	app.GET("/api/v1/feature_flags", getFeatureFlags)
-	app.GET("/api/v1/feature_flags/:key", getFeatureFlag)
-	app.POST("/api/v1/feature_flags/:key", CreateFeatureFlag)
-	app.PUT("/api/v1/feature_flags/:key", UpdateFeatureFlag)
-	app.DELETE("/api/v1/feature_flags/:key", deleteFeatureFlag)
+	app.GET(featureFlagRoute, getFeatureFlag)
+	app.POST(featureFlagRoute, CreateFeatureFlag)
+	app.PUT(featureFlagRoute, UpdateFeatureFlag)
+	app.DELETE(featureFlagRoute, deleteFeatureFlag)
 	app.GET("/api/v1/health", getHealth)
 	log.Println("Server started on port 8080")
 	log.Fatal(app.Start(":8080"))
