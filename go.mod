@@ -6,7 +6,7 @@ toolchain go1.26.5
 
 require (
 	github.com/dgraph-io/badger/v4 v4.9.1
-	github.com/labstack/echo/v5 v5.1.1
+	github.com/labstack/echo/v5 v5.3.1
 )
 
 require (
@@ -41,7 +41,7 @@ require (
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/swaggo/swag v1.16.6
-	golang.org/x/net v0.54.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
 )
