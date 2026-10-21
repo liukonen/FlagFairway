@@ -9,7 +9,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o app
 
 
-FROM node:24.21.0-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2 AS uibuilder
+FROM node:24.22.1-alpine3.23@sha256:4b00b6d1aa138805aace94cc2482808f2b4f01e5e9c9f8cdc0e217fd70600ef9 AS uibuilder
 WORKDIR /app
 COPY ./internal/ui/package*.json ./
 RUN  --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --prefer-offline
