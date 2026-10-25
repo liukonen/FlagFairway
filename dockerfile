@@ -19,7 +19,7 @@ RUN rm -rf /app/node_modules /app/.npm
 
 
 # Final stage
-FROM gcr.io/distroless/static-debian13@sha256:034df5c1737e8241f6ed6423a12e720ee0f6d6f088609ee172f98f6f2166ef5d
+FROM gcr.io/distroless/static-debian13@sha256:15f8637509792e05b97d83451b0b6ccfa4abd548f997e406ac1e72c87fe1fa78
 WORKDIR /app
 # Copy ui
 COPY --from=uibuilder /app/build ./internal/ui/build
