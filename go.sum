@@ -50,6 +50,8 @@ github.com/klauspost/compress v1.20.3 h1:zWNoFqq/lSuYQRim3dUXlXeA0IqwuZGicdG5ZTf
 github.com/klauspost/compress v1.20.3/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
 github.com/labstack/echo/v5 v5.4.4 h1:Nag9Mee0M9sOcKjProYuDNiw60QisysgfbIgz5US5Cw=
 github.com/labstack/echo/v5 v5.4.4/go.mod h1:4iEGNQiPPZnkfYpNR/L6fINd3NLiGWUD5+eBotFALas=
+github.com/labstack/echo/v5 v5.4.5 h1:lEPtXOQXgDcJNgrFy85WU2xBPZ/m9R2R+pc4eAxymjA=
+github.com/labstack/echo/v5 v5.4.5/go.mod h1:4iEGNQiPPZnkfYpNR/L6fINd3NLiGWUD5+eBotFALas=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
